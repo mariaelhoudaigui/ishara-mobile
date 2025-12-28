@@ -264,14 +264,14 @@ public class CameraConnectionFragment extends Fragment {
     }
   }
 
-  private void setUpCameraOutputs(final int width, final int height) {
-    // CORRECTION: Utiliser requireActivity() pour obtenir le contexte
-    final Context context = requireActivity();
+  // Dans CameraConnectionFragment.java
+  private void setUpCameraOutputs(final int width, final int height) {    final Context context = requireActivity();
     final CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
     try {
       final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
       final StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
+      // On prend la plus grande résolution YUV possible comme référence pour le ratio d'aspect.
       final Size largest = Collections.max(
               Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
               new CompareSizesByArea());
@@ -293,7 +293,7 @@ public class CameraConnectionFragment extends Fragment {
           }
           break;
         default:
-          LOGGER.e("Display rotation is invalid: " + displayRotation);
+          LOGGER.e("Display rotation is invalid: %d", displayRotation);
       }
 
       Point displaySize = new Point();
@@ -310,12 +310,15 @@ public class CameraConnectionFragment extends Fragment {
         maxPreviewHeight = displaySize.x;
       }
 
+      // Limiter la résolution maximale pour ne pas surcharger le téléphone
       if (maxPreviewWidth > 1920) maxPreviewWidth = 1920;
       if (maxPreviewHeight > 1080) maxPreviewHeight = 1080;
 
+      // La ligne la plus importante : on choisit la taille optimale.
       previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
               rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth, maxPreviewHeight, largest);
 
+      // On ajuste le ratio d'aspect de la vue pour qu'elle corresponde à l'image.
       if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
         textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
       } else {
@@ -323,10 +326,12 @@ public class CameraConnectionFragment extends Fragment {
       }
 
       cameraConnectionCallback.onPreviewSizeChosen(previewSize, sensorOrientation);
-    } catch (final CameraAccessException e) {
-      LOGGER.e(e, "Exception!");
+    } catch (final CameraAccessException | NullPointerException e) {
+      LOGGER.e(e, "Failed to set up camera outputs.");
     }
   }
+
+
 
   private void createCameraPreviewSession() {
     try {
@@ -374,9 +379,7 @@ public class CameraConnectionFragment extends Fragment {
       LOGGER.e(e, "Exception!");
     }
   }
-
   private void configureTransform(final int viewWidth, final int viewHeight) {
-    // CORRECTION: Utiliser requireActivity()
     if (null == textureView || null == previewSize || null == requireActivity()) {
       return;
     }
@@ -386,19 +389,27 @@ public class CameraConnectionFragment extends Fragment {
     final RectF bufferRect = new RectF(0, 0, previewSize.getHeight(), previewSize.getWidth());
     final float centerX = viewRect.centerX();
     final float centerY = viewRect.centerY();
+
     if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
       bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
       matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-      final float scale = Math.max(
-              (float) viewHeight / previewSize.getHeight(),
-              (float) viewWidth / previewSize.getWidth());
+      final float scale =
+              Math.max(
+                      (float) viewHeight / previewSize.getHeight(),
+                      (float) viewWidth / previewSize.getWidth());
       matrix.postScale(scale, scale, centerX, centerY);
       matrix.postRotate(90 * (rotation - 2), centerX, centerY);
     } else if (Surface.ROTATION_180 == rotation) {
       matrix.postRotate(180, centerX, centerY);
     }
+
+    // Cette partie est cruciale pour le mode portrait (ROTATION_0)
+    // Elle s'assure que le ratio est correct.
     textureView.setTransform(matrix);
   }
+
+
+
 
   protected static Size chooseOptimalSize(
           final Size[] choices,
@@ -452,4 +463,3 @@ public class CameraConnectionFragment extends Fragment {
     }
   }
 }
-
