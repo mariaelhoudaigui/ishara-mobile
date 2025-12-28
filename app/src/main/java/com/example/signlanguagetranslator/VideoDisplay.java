@@ -1,87 +1,45 @@
 package com.example.signlanguagetranslator;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-
 public class VideoDisplay extends AppCompatActivity {
-
-    private FirebaseStorage db=FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_display);
-        MediaController mc=new MediaController(this);
-        String sessionId = getIntent().getStringExtra("video_id");
-        ProgressBar progressBar=(ProgressBar)findViewById(R.id.bufferProgress);
-        VideoView video=(VideoView) findViewById(R.id.mainVideo);
-        System.out.println(sessionId);
 
-        downloadVideo(video,sessionId,mc,progressBar);
-    }
+        String videoUrl = getIntent().getStringExtra("video_id");
 
-    public void downloadVideo(VideoView v,String url,MediaController mc,ProgressBar progressBar){
-        StorageReference ref = db.getReferenceFromUrl(url);
+        VideoView videoView = findViewById(R.id.mainVideo);
+        ProgressBar progressBar = findViewById(R.id.bufferProgress);
 
-        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
+        MediaController mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoView);
 
-                mc.setAnchorView(v);
-                v.setMediaController(mc);
-                v.setVideoURI(uri);
-                v.requestFocus();
+        videoView.setMediaController(mediaController);
+        videoView.setVideoURI(Uri.parse(videoUrl));
 
-                progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
 
-                v.setOnPreparedListener(new  MediaPlayer.OnPreparedListener() {
-
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-
-                        mp.start();
-
-                        mp.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-
-                            @Override
-                            public void onVideoSizeChanged(MediaPlayer mp, int arg1, int arg2) {
-                                progressBar.setVisibility(View.GONE);
-                                mp.start();
-                            }
-                        });
-                    }
-                });
-                v.start();
-
-
-
-            }
-
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure( Exception e) {
-                Toast.makeText(getApplicationContext(),"Sorry No Internet Connection",Toast.LENGTH_SHORT).show();
-
-            }
+        videoView.setOnPreparedListener(mp -> {
+            progressBar.setVisibility(View.GONE);
+            mp.start();
         });
 
+        videoView.setOnErrorListener((mp, what, extra) -> {
+            progressBar.setVisibility(View.GONE);
+            return false;
+        });
+
+        videoView.start();
     }
 }
