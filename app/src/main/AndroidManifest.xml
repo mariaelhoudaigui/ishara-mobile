@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1. REMOVED the 'package' attribute from the <manifest> tag below -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature  
+        android:name="android.hardware.camera.any"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/main_icon_x_round"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!-- These activities do not have intent-filters, so they do not need the exported attribute.
+             By default, they are not exported. -->
+        <activity android:name=".DetectorActivity" />
+        <activity android:name=".VideoDisplay" />
+        <activity android:name=".Dictionary" />
+        <activity android:name=".Home" />
+
+        <!-- 2. ADDED android:exported="true" because this activity has an intent-filter -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
