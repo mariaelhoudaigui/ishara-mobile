@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.signlanguagetranslator" />
-                  <option name="mobileSdkAppId" value="1:664351598549:android:8b8962bae905edcb" />
-                  <option name="projectId" value="sign-language-translator-8b12b" />
-                  <option name="projectNumber" value="664351598549" />
+                  <option name="mobileSdkAppId" value="1:58713991770:android:14f2e20b5547abe6c74663" />
+                  <option name="projectId" value="ishara-e8e08" />
+                  <option name="projectNumber" value="58713991770" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

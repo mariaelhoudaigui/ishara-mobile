@@ -24,6 +24,8 @@
         <activity android:name=".VideoDisplay" />
         <activity android:name=".Dictionary" />
         <activity android:name=".Home" />
+        <activity android:name=".QuizCategoryActivity" />
+        <activity android:name=".QuizActivity" />
 
         <!-- 2. ADDED android:exported="true" because this activity has an intent-filter -->
         <activity

@@ -17,6 +17,7 @@
 package com.example.signlanguagetranslator;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -265,20 +266,22 @@ public class CameraConnectionFragment extends Fragment {
   }
 
   // Dans CameraConnectionFragment.java
-  private void setUpCameraOutputs(final int width, final int height) {    final Context context = requireActivity();
+  private void setUpCameraOutputs(final int width, final int height) {
+    final Context context = requireActivity();
     final CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
     try {
       final CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
       final StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-      // On prend la plus grande résolution YUV possible comme référence pour le ratio d'aspect.
+      // CORRECTION: Utiliser les tailles de preview au lieu de YUV pour avoir plus de choix
       final Size largest = Collections.max(
-              Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
+              Arrays.asList(map.getOutputSizes(SurfaceTexture.class)),
               new CompareSizesByArea());
 
       int displayRotation = requireActivity().getWindowManager().getDefaultDisplay().getRotation();
       int sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
       boolean swappedDimensions = false;
+
       switch (displayRotation) {
         case Surface.ROTATION_0:
         case Surface.ROTATION_180:
@@ -310,16 +313,21 @@ public class CameraConnectionFragment extends Fragment {
         maxPreviewHeight = displaySize.x;
       }
 
-      // Limiter la résolution maximale pour ne pas surcharger le téléphone
-      if (maxPreviewWidth > 1920) maxPreviewWidth = 1920;
-      if (maxPreviewHeight > 1080) maxPreviewHeight = 1080;
+      // CORRECTION: Ne pas limiter arbitrairement
+      // if (maxPreviewWidth > 1920) maxPreviewWidth = 1920;
+      // if (maxPreviewHeight > 1080) maxPreviewHeight = 1080;
 
-      // La ligne la plus importante : on choisit la taille optimale.
-      previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-              rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth, maxPreviewHeight, largest);
+      previewSize = chooseOptimalSize(
+              map.getOutputSizes(SurfaceTexture.class),
+              rotatedPreviewWidth,
+              rotatedPreviewHeight,
+              maxPreviewWidth,
+              maxPreviewHeight,
+              largest);
 
-      // On ajuste le ratio d'aspect de la vue pour qu'elle corresponde à l'image.
-      if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      // CORRECTION: Ajuster le ratio d'aspect correctement
+      int orientation = getResources().getConfiguration().orientation;
+      if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
         textureView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
       } else {
         textureView.setAspectRatio(previewSize.getHeight(), previewSize.getWidth());
@@ -330,8 +338,6 @@ public class CameraConnectionFragment extends Fragment {
       LOGGER.e(e, "Failed to set up camera outputs.");
     }
   }
-
-
 
   private void createCameraPreviewSession() {
     try {
@@ -379,37 +385,58 @@ public class CameraConnectionFragment extends Fragment {
       LOGGER.e(e, "Exception!");
     }
   }
+  // Dans CameraConnectionFragment.java
+
   private void configureTransform(final int viewWidth, final int viewHeight) {
-    if (null == textureView || null == previewSize || null == requireActivity()) {
+    final Activity activity = getActivity();
+    if (null == textureView || null == previewSize || null == activity) {
       return;
     }
-    final int rotation = requireActivity().getWindowManager().getDefaultDisplay().getRotation();
+
+    final int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
     final Matrix matrix = new Matrix();
     final RectF viewRect = new RectF(0, 0, viewWidth, viewHeight);
     final RectF bufferRect = new RectF(0, 0, previewSize.getHeight(), previewSize.getWidth());
     final float centerX = viewRect.centerX();
     final float centerY = viewRect.centerY();
 
+    final float bufferRatio = bufferRect.width() / bufferRect.height();
+    final float viewRatio = viewRect.width() / viewRect.height();
+
+    float scaleX = 1.0f;
+    float scaleY = 1.0f;
+
     if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-      bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
-      matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
-      final float scale =
-              Math.max(
-                      (float) viewHeight / previewSize.getHeight(),
-                      (float) viewWidth / previewSize.getWidth());
-      matrix.postScale(scale, scale, centerX, centerY);
+      // Mode Paysage
+      if (viewRatio > bufferRatio) {
+        scaleY = viewRatio / bufferRatio;
+      } else {
+        scaleX = bufferRatio / viewRatio;
+      }
+    } else {
+      // Mode Portrait
+      if (viewRatio > bufferRatio) {
+        scaleX = viewRatio / bufferRatio;
+      } else {
+        scaleY = bufferRatio / viewRatio;
+      }
+    }
+
+    // Applique la mise à l'échelle "Center Crop"
+    matrix.postScale(scaleX, scaleY, centerX, centerY);
+
+    // Applique la rotation nécessaire
+    if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
       matrix.postRotate(90 * (rotation - 2), centerX, centerY);
     } else if (Surface.ROTATION_180 == rotation) {
       matrix.postRotate(180, centerX, centerY);
     }
 
-    // Cette partie est cruciale pour le mode portrait (ROTATION_0)
-    // Elle s'assure que le ratio est correct.
     textureView.setTransform(matrix);
   }
 
 
-
+  // Dans CameraConnectionFragment.java
 
   protected static Size chooseOptimalSize(
           final Size[] choices,
@@ -419,31 +446,34 @@ public class CameraConnectionFragment extends Fragment {
           final int maxHeight,
           final Size aspectRatio) {
 
+    // On collecte les résolutions qui respectent les dimensions maximales.
     final List<Size> bigEnough = new ArrayList<>();
-    final List<Size> notBigEnough = new ArrayList<>();
-    final int w = aspectRatio.getWidth();
-    final int h = aspectRatio.getHeight();
+    final float desiredRatio = (float) aspectRatio.getHeight() / aspectRatio.getWidth();
+
     for (final Size option : choices) {
-      if (option.getWidth() <= maxWidth
-              && option.getHeight() <= maxHeight
-              && option.getHeight() == option.getWidth() * h / w) {
-        if (option.getWidth() >= textureViewWidth && option.getHeight() >= textureViewHeight) {
-          bigEnough.add(option);
-        } else {
-          notBigEnough.add(option);
-        }
+      if (option.getWidth() <= maxWidth && option.getHeight() <= maxHeight) {
+        bigEnough.add(option);
       }
     }
 
     if (bigEnough.size() > 0) {
-      return Collections.min(bigEnough, new CompareSizesByArea());
-    } else if (notBigEnough.size() > 0) {
-      return Collections.max(notBigEnough, new CompareSizesByArea());
+      // On cherche la résolution qui a le ratio le plus proche de celui de l'écran.
+      return Collections.min(bigEnough, new Comparator<Size>() {
+        @Override
+        public int compare(Size lhs, Size rhs) {
+          float lhsRatio = (float) lhs.getHeight() / lhs.getWidth();
+          float rhsRatio = (float) rhs.getHeight() / rhs.getWidth();
+          // Compare la différence de ratio par rapport au ratio désiré
+          return Float.compare(Math.abs(lhsRatio - desiredRatio), Math.abs(rhsRatio - desiredRatio));
+        }
+      });
     } else {
       LOGGER.e("Couldn't find any suitable preview size");
+      // En dernier recours, on retourne la première option.
       return choices[0];
     }
   }
+
 
   /**
    * The camera preview size will be chosen to be the smallest frame by pixel size capable of
