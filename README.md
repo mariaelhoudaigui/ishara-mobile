@@ -1,61 +1,197 @@
-# SignLanguageTranslator
+# 🤟 ISHAARA - Mobile Sign Language Learning App
 
-## Intro
-    Our Graduation project from Faculty of computers and information 2019.
-   ### Team
-       Bouatioui Ilham,
-       El houdaigui Maria
-   
-  ## Idea
-     It was about translating Signs of ASL to common language ex: Arabic to make people life easier,
-     by help deaf community to communicate with all people without problems, 
-     also hearing people can understand deaf people signs,
-     and show the accuracy percentage of the translation according to error rate and accuracy of model.
+## 📱 Project Description
 
-  ![Home](https://user-images.githubusercontent.com/29886682/110549352-9a323500-813a-11eb-836d-9b3bf1b6a8b1.png)
+**ISHAARA** is an innovative Android mobile application designed to facilitate learning Arabic sign language. Developed as part of the Engineering Cycle in Information Systems and Big Data, this application combines interactive pedagogical methods with artificial intelligence technologies to provide a complete and engaging learning experience.
 
-## Tools :
+### 👥 Development Team
 
-     Java, Android, Google Firebase, TensorFlow, TensorFlowLite
-    
-## Documentation :
-    You'll find every step and its detail in a specific details in the project documentation.
-   [Documentation](https://github.com/BahaaIbrahim3024/SignLanguageTranslator/blob/master/SL-Translator-Book.pdf)
+- **Maria Elhoudaigui**
+- **Ilham Bouatioui**
 
-## Introduce the application :
-   ### 1- Main Screen
-![Home2](https://user-images.githubusercontent.com/29886682/110549315-8e467300-813a-11eb-9f26-12c359fd1663.png)
+---
 
-   ### 2- If you choose Dictionary
-           Translation from common language to sign language 
-           (it will display videos in ASL for some Actions according to what you searched for)
-   ![Dict1](https://user-images.githubusercontent.com/29886682/110549344-97cfdb00-813a-11eb-8b0d-18ec65faacba.png)
-           
-           Then type what you want to search for
-   ![Dict2](https://user-images.githubusercontent.com/29886682/110549348-99010800-813a-11eb-884d-8eaf5abc87ec.png)
+## 🎯 Problem Statement
 
-           If you find what you're looking for then play the video.
-   ![video1](https://user-images.githubusercontent.com/29886682/110549334-943c5400-813a-11eb-9b1b-aa371b9938ee.png)
-   
-   ### 3- If you choose Translate
-           Translation from Sign language to common language 
-           (The phone camera will be opened and detect the sign that you're doing With your hands and give you accuracy of sign)
-   ![trans1](https://user-images.githubusercontent.com/29886682/110549322-8f77a000-813a-11eb-86cd-f896ae292454.png)
-   
-              Translate Sign to letter.
-   ![trans2](https://user-images.githubusercontent.com/29886682/110549326-91416380-813a-11eb-8547-14d73967abbf.png)
+Sign language learning faces several major challenges:
 
-              Accuracy of translation.
-              I- High Accuracy
-   ![trans3](https://user-images.githubusercontent.com/29886682/110549328-92729080-813a-11eb-8dfe-60380e1b529c.png)
+1. **Limited Access**: Learning resources are rare and difficult to access
+2. **Lack of Interactivity**: Absence of immediate feedback when practicing gestures
+3. **Social Inclusion Barriers**: Communication difficulty between deaf and hearing people
 
-              II- Low Accuracy
-   ![trans4](https://user-images.githubusercontent.com/29886682/110551936-221a3e00-813f-11eb-9eba-afb20d198a4b.png)
+---
 
-  ## - CNN Accuracy
-  ![accuracy](https://user-images.githubusercontent.com/29886682/110549338-956d8100-813a-11eb-9a8f-c53a3aeb77e6.png)
+## 💡 Proposed Solution
 
-  ## - Sample of created Dataset of Arabic letters used in project
-  ![dataset](https://user-images.githubusercontent.com/29886682/110549340-96061780-813a-11eb-9600-d544477a7e64.png)
+ISHAARA offers a three-step approach for effective learning:
 
-# * Thanks
+### 📚 Learn
+A structured pedagogical video library to assimilate sign language basics
+
+### 🎯 Practice
+A real-time detection module via camera to actively exercise
+
+### ✅ Validate
+Interactive quizzes with instant correction to evaluate knowledge
+
+---
+
+## ✨ Main Features
+
+### 🎥 Module 1: Video Dictionary
+
+- Complete video library of signs classified by categories
+- Clear and concise pedagogical videos
+- Search function to quickly find a sign
+- Intuitive interface with integrated video player
+- Progress bar and playback controls
+
+
+### 📝 Module 2: Interactive Quizzes
+
+- Multiple choice questions (4 options per question)
+- Various thematic categories
+- Immediate correction with correct answer display
+- Final score and performance feedback
+- Illustrative images for each question
+
+---
+
+### 📷 Module 3: Camera Detection (AI)
+
+**The heart of our innovation!**
+
+- Real-time gesture recognition via camera
+- Immediate feedback on sign accuracy
+- TensorFlow Lite for image analysis
+- AI model trained to recognize Arabic signs
+---
+
+## 🛠️ Technologies Used
+
+* **Android Studio** (Integrated Development Environment)
+* **Java** (Main Programming Language)
+* **Firebase Firestore** (NoSQL Database)
+* **GitHub** (Video and Image Hosting)
+* **TensorFlow Lite** (Real-time Gesture Detection)
+* **Gradle** (Dependency Management)
+* **Camera2 API** (Camera Access)
+* **RecyclerView** (List Display)
+* **MediaPlayer/VideoView** (Video Playback)
+
+---
+
+
+
+## 🔥 Firebase Database Structure
+
+### Collection "Videos" (Firestore)
+Stores video metadata:
+- `description`: Sign description
+- `tag`: Sign category
+- `url`: Link to video hosted on GitHub
+
+### Collection "Quizzes" (Firestore)
+Stores quiz questions:
+- `question`: Question text
+- `correctAnswer`: Correct answer
+- `options`: List of 4 answer options
+- `imageUrl`: Associated image URL (hosted on GitHub)
+- `category`: Quiz category
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+
+* Android Studio (latest version recommended)
+* JDK 8 or higher
+* Android device or emulator (API 21+)
+* Firebase account
+
+---
+
+### 1️⃣ Clone the Repository
+
+---
+
+### 2️⃣ Open Project in Android Studio
+
+```bash
+File > Open > Select project folder
+```
+
+---
+
+### 3️⃣ Firebase Configuration
+
+1. Create a Firebase project
+2. Download `google-services.json` file
+3. Place file in `app/` folder
+4. Create "Videos" and "Quizzes" collections in Firestore
+
+---
+
+### 4️⃣ Sync Gradle
+
+```bash
+Tools > Gradle > Sync Project with Gradle Files
+```
+
+---
+
+### 5️⃣ Build and Run
+
+```bash
+Run > Run 'app'
+```
+
+---
+
+## 📖 User Guide
+
+### 1️⃣ Home Screen
+Launch the application and access the main menu
+
+### 2️⃣ Main Menu
+Choose from three main features:
+* 📚 **Dictionary** - Learn signs
+* 📝 **Quiz** - Test your knowledge
+* 📷 **Detection** - Practice in real-time
+
+### 3️⃣ Dictionary
+Browse categories or use search to find a sign
+
+### 4️⃣ Quiz
+Select a category and test your knowledge with interactive questions
+
+### 5️⃣ Detection
+Activate camera and practice your signs with instant AI feedback
+
+---
+
+
+
+
+## 📄 License
+
+This project was developed in an academic framework at the National School of Applied Sciences of Berrechid.
+
+---
+
+## 📧 Contact
+
+For any questions or suggestions:
+
+- **Maria Elhoudaigui** - [[email](maria.elhoudaigui@gmail.com/)/[linkedin](https://www.linkedin.com/in/maria-el-houdaigui/)]
+
+
+
+
+## 📸 Screenshots
+
+
+---
+
+**Developed with ❤️ by Maria Elhoudaigui and Ilham Bouatioui**
