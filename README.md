@@ -191,6 +191,11 @@ For any questions or suggestions:
 
 ## 📸 Screenshots
 
+![Homepage](homepage.jpeg)
+![Homepage](homepage2.jpeg)
+![Dictionnaire](dictionnary.jpeg)
+![QUIZ](quiz.jpeg)
+![QUIZ](quiztest.jpeg)
 
 ---
 
