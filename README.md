@@ -196,6 +196,7 @@ For any questions or suggestions:
 <img src="dictionnary.jpeg" alt="Dictionnaire" width="400">
 <img src="quiz.jpeg" alt="QUIZ" width="400">
 <img src="quiztest.jpeg" alt="QUIZ" width="400">
+<img src="detection.png" alt="DTECTION" width="400">
 
 
 ---
