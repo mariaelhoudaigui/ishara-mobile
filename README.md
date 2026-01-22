@@ -191,11 +191,12 @@ For any questions or suggestions:
 
 ## 📸 Screenshots
 
-![Homepage](homepage.jpeg)
-![Homepage](homepage2.jpeg)
-![Dictionnaire](dictionnary.jpeg)
-![QUIZ](quiz.jpeg)
-![QUIZ](quiztest.jpeg)
+<img src="homepage.jpeg" alt="Homepage" width="400">
+<img src="homepage2.jpeg" alt="Homepage" width="400">
+<img src="dictionnary.jpeg" alt="Dictionnaire" width="400">
+<img src="quiz.jpeg" alt="QUIZ" width="400">
+<img src="quiztest.jpeg" alt="QUIZ" width="400">
+
 
 ---
 
